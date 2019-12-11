@@ -1,0 +1,18 @@
+#!/bin/bash
+
+# 6.2.15 Ensure all groups in /etc/passwd exist in /etc/group
+# 
+# Description:
+# Over time, system administration errors and changes can lead to groups being defined in
+# /etc/passwd but not in /etc/group .
+# Rationale:
+# Groups defined in the /etc/passwd file but not in the /etc/group file pose a threat to
+# system security since group permissions are not properly managed.
+
+for i in $(cut -s -d: -f4 /etc/passwd | sort -u ); do
+    grep -q -P "^.*?:[^:]*:$i:" /etc/group
+
+    if [ $? -ne 0 ]; then
+        echo -e "\n>>> Group $i is referenced by /etc/passwd but does not exist in /etc/group"
+    fi
+done

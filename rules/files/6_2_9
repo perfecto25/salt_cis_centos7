@@ -1,0 +1,21 @@
+#!/bin/bash
+
+# 6.2.9 Ensure users own their home directories
+# Description:
+# The user home directory is space defined for the particular user to set local environment
+# variables and to store personal files.
+# Rationale:
+# Since the user is accountable for files stored in the user home directory, the user must be
+# the owner of the directory.
+
+cat /etc/passwd | egrep -v '^(root|halt|sync|shutdown|bin|adm|daemon)' | awk -F: '($7 !="/sbin/nologin" && $7 != "/bin/false") { print $1 " " $6 }' | while read user dir; 
+do
+    if [ ! -d "$dir" ]; then
+        echo -e "\n>>> $dir - does not exist."
+    else
+        owner=$(stat -L -c "%U" "$dir")
+        if [ "$owner" != "$user" ]; then
+            echo -e "\n>>> $dir is owned by: $owner."
+        fi
+    fi
+done

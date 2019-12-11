@@ -1,0 +1,20 @@
+#!/bin/bash
+# 6.2.12 Ensure no users have .netrc files
+
+# Description:
+# The .netrc file contains data for logging into a remote host for file transfers via FTP.
+# Rationale:
+# The .netrc file presents a significant security risk since it stores passwords in unencrypted
+# form. Even if FTP is disabled, user accounts may have brought over .netrc files from other
+# systems which could pose a risk to those systems.
+
+cat /etc/passwd | egrep -v '^(root|halt|sync|shutdown|adm|bin|daemon)' | awk -F: '($7 !="/sbin/nologin" && $7 != "/bin/false") { print $1 " " $6 }' | while read user dir; 
+do
+    if [ ! -d "$dir" ]; then
+        echo -e "\n>>> The home directory ($dir) of user $user does not exist."
+    else
+        if [ ! -h "$dir/.netrc" -a -f "$dir/.netrc" ]; then
+            echo -e "\n>>> .netrc file $dir/.netrc exists"
+        fi
+    fi
+done

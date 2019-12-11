@@ -1,0 +1,23 @@
+#!/bin/bash
+# 6.2.14 Ensure no users have .rhosts files 
+
+# Description:
+# While no .rhosts files are shipped by default, users can easily create them.
+# Rationale:
+# This action is only meaningful if .rhosts support is permitted in the file /etc/pam.conf .
+# Even though the .rhosts files are ineffective if support is disabled in /etc/pam.conf , they
+# may have been brought over from other systems and could contain information useful to
+# an attacker for those other systems.
+
+cat /etc/passwd | egrep -v '^(root|halt|sync|shutdown|adm|bin|daemon)' | awk -F: '($7 !="/sbin/nologin" && $7 != "/bin/false") { print $1 " " $6 }' | while read user dir; 
+do
+    if [ ! -d "$dir" ]; then
+        echo -e "\n>>> The home directory ($dir) of user $user does not exist."
+    else
+        for file in $dir/.rhosts; do
+            if [ ! -h "$file" -a -f "$file" ]; then
+                echo -e "\n>>> .rhosts file in $dir"
+            fi
+        done
+    fi
+done

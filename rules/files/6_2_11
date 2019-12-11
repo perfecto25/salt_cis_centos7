@@ -1,0 +1,20 @@
+#!/bin/bash
+# 6.2.11 Ensure no users have .forward files
+
+# Description:
+# The .forward file specifies an email address to forward the user's mail to.
+# Rationale:
+# Use of the .forward file poses a security risk in that sensitive data may be inadvertently
+# transferred outside the organization. The .forward file also poses a risk as it can be used to
+# execute commands that may perform unintended actions.
+
+cat /etc/passwd | egrep -v '^(root|halt|sync|shutdown|adm|bin|daemon)' | awk -F: '($7 !="/sbin/nologin" && $7 != "/bin/false") { print $1 " " $6 }' | while read user dir; 
+do
+    if [ ! -d "$dir" ]; then
+        echo -e "\n>>> The home directory ($dir) of user $user does not exist."
+    else
+        if [ ! -h "$dir/.forward" -a -f "$dir/.forward" ]; then
+            echo -e "\n>>> .forward file $dir/.forward exists"
+        fi
+    fi
+done
