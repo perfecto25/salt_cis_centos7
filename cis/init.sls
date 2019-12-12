@@ -86,7 +86,7 @@ include:
 {% for rule in rules %}
 {% if rules[rule]['check'] %}
     {% if not rule in salt['pillar.get']('cis_ignore:rule') %}
-    - formula.cis.rules.{{ rule|replace('.', '_') }}
+    - cis.rules.{{ rule|replace('.', '_') }}
     {% endif %}
 {% endif %}
 {% endfor %}
