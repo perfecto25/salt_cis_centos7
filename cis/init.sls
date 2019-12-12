@@ -82,6 +82,10 @@
     '6.2.19':  { 'desc': 'Ensure no duplicate group names exist',                               'check': True }
 } %}
 
+
+
+{% if grains['osfinger'] == 'CentOS Linux-7' %}
+
 include:
 {% for rule in rules %}
 {% if rules[rule]['check'] %}
@@ -90,3 +94,5 @@ include:
     {% endif %}
 {% endif %}
 {% endfor %}
+
+{% endif %}
