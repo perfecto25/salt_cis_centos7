@@ -15,6 +15,6 @@
         - name: "(6.2.17) Ensure no duplicate GIDs exist: \
 
                 {{ result['stdout'] }} \
-                
+
         "
 {% endif %}

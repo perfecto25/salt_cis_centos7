@@ -8,7 +8,7 @@
 # transferred outside the organization. The .forward file also poses a risk as it can be used to
 # execute commands that may perform unintended actions.
 
-cat /etc/passwd | egrep -v '^(root|halt|sync|shutdown|adm|bin|daemon)' | awk -F: '($7 !="/sbin/nologin" && $7 != "/bin/false") { print $1 " " $6 }' | while read user dir; 
+cat /etc/passwd | egrep -v '^(root|halt|sync|shutdown|adm|bin|daemon)' | awk -F: '($7 !="/sbin/nologin" && $7 != "/bin/false") { print $1 " " $6 }' | while read user dir;
 do
     if [ ! -d "$dir" ]; then
         echo -e "\n>>> The home directory ($dir) of user $user does not exist."

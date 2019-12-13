@@ -7,7 +7,7 @@
 # A new user who is assigned the deleted user's user ID or group ID may then end up
 # "owning" these files, and thus have more access on the system than was intended.
 
-{% set result = salt['cmd.run_all'](cmd="df --local -P | awk {'if (NR!=1) print $6'} | xargs -I '{}' find '{}' -xdev -nouser -ls | awk {'print $11'}", python_shell=True) %}
+{% set result = salt['cmd.run_all'](cmd="df --local -P | awk {'if (NR!=1) print $6'} | grep -v '/run' | xargs -I '{}' find '{}' -xdev -nouser -ls | awk {'print $11'}", python_shell=True) %}
 
 {% if result['stdout'] %}
 (6.1.11) Ensure no unowned files or directories exist:

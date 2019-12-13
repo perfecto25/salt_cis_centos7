@@ -20,26 +20,40 @@ CIS formula cannot remediate automatically:
 to skip a specific Rule + remediation for a specific rule for all hosts, simply set the rule to False in the  ```init.sls```
 
     {% set rules = {
-        '1.1.1':   { 'desc': 'Disable unused filesystems',                                          'check': False },
-        '1.1.2':   { 'desc': 'Ensure separate partition exists for /tmp',                           'check': False },
+        '1.1.1':   { 'Disable unused filesystems':                                          False },
+        '1.1.2':   { 'Ensure separate partition exists for /tmp':                           False },
 
 
 ## Ignore Rules, Package or Service checks on a per-host basis
 
-to whitelist a service or a package, or to skip a specific Rule check on an individual host, add a pillar to the minion,
+to remove a service, package, filesystem or protocol from CIS check/compliance, or to skip a specific Rule check on an individual host, add a pillar to the minion,
 
-    cis_ignore:
-        rule:
-            - 1.4.2
-            - 2.1.1.4
-        service:
-            - httpd
-            - smb
-            - nfs
-        pkg:
-            - httpd
-            - samba
+    cis:
+        ignore:
+            rules: ['1.4.2', '2.1.1.4']
+            services: ['smb', 'nfs']
+            packages: ['samba', 'httpd']
+            filesystems: ['squashfs']
+            protocols: ['rds']
 
+by default, CIS state will apply the benchmark-recommended value settings for each check, for example 
+
+    # Rule 4.1.1.2 Ensure system is disabled when audit logs are full
+    admin_space_left_action = {{ salt['pillar.get']('cis:default:auditd:admin_space_left_action', 'halt') }}"
+
+it will apply the default 'halt' for admin_space_left_action parameter in /etc/audit/auditd.conf.
+
+to specify a per-host value for these settings, add a pillar for the host
+    
+    cis:
+        default:
+            auditd:
+                admin_space_left_action: SUSPEND
+
+To see the full list of parameters that can be provided via pillar, see 'sample.pillar.sls'
+
+
+---
 ## Sample compliance test results
 ```
 ----------

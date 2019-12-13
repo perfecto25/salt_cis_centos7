@@ -5,7 +5,7 @@
     'avahi-daemon',
     'cups'
 ] %}
-{% if pkg not in salt['pillar.get']('cis_ignore:pkg') %}
+{% if pkg not in salt['pillar.get']('cis:ignore:packages') %}
 {{ rule }} ensure package {{ pkg }} is not installed:
     pkg.removed:
         - name: {{ pkg }}
@@ -36,7 +36,7 @@
     'rsyncd',
     'ntalk'
 ] %}
-{% if svc not in salt['pillar.get']('cis_ignore:service') %}
+{% if svc not in salt['pillar.get']('cis:ignore:services') %}
 {{ rule }} Ensure services are disabled; {{ svc }}:
     service.disabled:
         - name: {{ svc }}

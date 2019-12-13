@@ -7,7 +7,7 @@
 # controls it provides are not overridden.
 
 {% set rule = '(1.6.1.1)' %}
-{% set selinux= salt['cmd.run_all'](cmd="grep '^\s*linux' /boot/grub2/grub.cfg | grep 'selinux=0\|enforcing=0", python_shell=True)['stdout'] %}
+{% set selinux= salt['cmd.run_all'](cmd="grep '^\s*linux' /boot/grub2/grub.cfg | grep 'selinux=0\|enforcing=0'", python_shell=True)['stdout'] %}
 
 {% if not selinux %}
 {{ rule }} Ensure SELinux is not disabled in bootloader configuration:

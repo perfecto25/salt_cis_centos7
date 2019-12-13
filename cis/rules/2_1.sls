@@ -20,7 +20,8 @@
     'tftp', 
     'xinetd' 
 ] %}
-{% if svc not in salt['pillar.get']('cis_ignore:service') %}
+
+{% if svc not in salt['pillar.get']('cis:ignore:services') %}
 {{ rule }} Disable xinetd service; {{ svc }}:
     service.disabled:
         - name: {{ svc }}

@@ -7,10 +7,13 @@
 # Rationale:
 # These entries may provide an avenue for attackers to gain privileged access on the system.
 
-{% set result = salt['cmd.run_all'](cmd="grep '^\+:' /etc/group", python_shell=True) %}
+{% if salt['file.search']('/etc/group', '^\+') %}
 
-{% if result['stdout'] %}
 (6.2.4) Ensure no legacy "+" entries exist in /etc/group:
-    test.fail_without_changes:
-        - name: "(6.2.4) Ensure no legacy '+' entries exist in /etc/group: \n\n{{ result['stdout'].split() | yaml }}\n"
+    file.replace:
+        - name: /etc/group
+        - pattern: '^\+'
+        - repl: ""
+        - append_if_not_found: False
+
 {% endif %}
