@@ -9,8 +9,8 @@
 
 {% set result = salt['cmd.script']('salt://{}/files/6_2_8'.format(slspath), cwd='/opt') %}
 
-
 {% if result['stdout'] %}
+
 (6.2.8) Ensure users' home directories permissions are 750 or more restrictive:
     test.fail_without_changes:
         - name: "(6.2.8) Ensure users' home directories permissions are 750 or more restrictive: \

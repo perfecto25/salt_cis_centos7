@@ -7,11 +7,13 @@
 # Rationale:
 # These entries may provide an avenue for attackers to gain privileged access on the system.
 
+{% if salt['file.search']('/etc/passwd', '^\+') %}
 
-{% set result = salt['cmd.run_all'](cmd="grep '^\+:' /etc/passwd", python_shell=True) %}
-
-{% if result['stdout'] %}
 (6.2.2) Ensure no legacy "+" entries exist in /etc/passwd:
-    test.fail_without_changes:
-        - name: "(6.2.2) Ensure no legacy '+' entries exist in /etc/passwd: \n\n{{ result['stdout'].split() | yaml }}\n"
+    file.replace:
+        - name: /etc/passwd
+        - pattern: '^\+'
+        - repl: ""
+        - append_if_not_found: False
+
 {% endif %}

@@ -9,7 +9,8 @@
 # There are valid reasons for SUID programs, but it is important to identify and review such
 # programs to ensure they are legitimate.
 
-{% set result = salt['cmd.run_all'](cmd="df --local -P | awk {'if (NR!=1) print $6'} | xargs -I '{}' find '{}' -xdev -type f -perm -4000", python_shell=True) %}
+{% set result = salt['cmd.run_all'](cmd="df --local -P | awk {'if (NR!=1) print $6'} | xargs -I '{}' find '{}' -xdev -type f -perm -4000 | egrep -v 'bin/(mount|chage|gpasswd|newgrp|chfn|su|chsh|umount|sudo|pkexec|crontab|passwd|staprun|pam_timestamp_check|unix_chkpwd)'", python_shell=True) %}
+
 
 {% if result['stdout'] %}
 (6.1.13) Audit SUID executables:

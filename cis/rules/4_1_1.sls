@@ -26,21 +26,21 @@
     file.replace:
         - name: /etc/audit/auditd.conf
         - pattern: '^space_left_action = .*'
-        - repl: 'space_left_action = email'
+        - repl: 'space_left_action = {{ salt['pillar.get']('cis:default:auditd:space_left_action', 'email') }}'
         - append_if_not_found: True
 
 {{ rule }} Audit action_mail_acct:
     file.replace:
         - name: /etc/audit/auditd.conf
         - pattern: '^action_mail_acct = .*'
-        - repl: 'action_mail_acct = root'
+        - repl: "action_mail_acct = {{ salt['pillar.get']('cis:default:action_mail_acct', 'root') }}"
         - append_if_not_found: True
 
 {{ rule }} Audit admit space left action:
     file.replace:
         - name: /etc/audit/auditd.conf
         - pattern: '^admin_space_left_action = .*'
-        - repl: 'admin_space_left_action = halt'
+        - repl: "admin_space_left_action = {{ salt['pillar.get']('cis:default:auditd:admin_space_left_action', 'halt') }}"
         - append_if_not_found: True
 
 # 4.1.1.3 Ensure audit logs are not automatically deleted
@@ -49,5 +49,5 @@
     file.replace:
         - name: /etc/audit/auditd.conf
         - pattern: '^max_log_file_action = .*'
-        - repl: 'max_log_file_action = keep_logs'
+        - repl: "max_log_file_action = {{ salt['pillar.get']('cis:default:auditd:max_log_file_action', 'keep_logs') }}"
         - append_if_not_found: True

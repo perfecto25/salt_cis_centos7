@@ -12,12 +12,12 @@
     file.replace:
         - name: /etc/bashrc
         - pattern: ^TMOUT=.*
-        - repl: TMOUT=600
+        - repl: TMOUT={{ salt['pillar.get']('cis:default:shell:timeout', 600) }}
         - append_if_not_found: True
 
 (5.4.5) Ensure default user shell timeout is 900 seconds or less in /etc/profile:
     file.replace:
         - name: /etc/profile
         - pattern: ^TMOUT=.*
-        - repl: TMOUT=600
+        - repl: TMOUT={{ salt['pillar.get']('cis:default:shell:timeout', 600) }}
         - append_if_not_found: True

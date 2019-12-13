@@ -7,10 +7,13 @@
 # Rationale:
 # These entries may provide an avenue for attackers to gain privileged access on the system.
 
-{% set result = salt['cmd.run_all'](cmd="grep '^\+:' /etc/shadow", python_shell=True) %}
+{% if salt['file.search']('/etc/shadow', '^\+') %}
 
-{% if result['stdout'] %}
 (6.2.3) Ensure no legacy "+" entries exist in /etc/shadow:
-    test.fail_without_changes:
-        - name: "(6.2.3) Ensure no legacy '+' entries exist in /etc/shadow: \n\n{{ result['stdout'].split() | yaml }}\n"
+    file.replace:
+        - name: /etc/shadow
+        - pattern: '^\+'
+        - repl: ""
+        - append_if_not_found: False
+
 {% endif %}

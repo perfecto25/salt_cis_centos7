@@ -7,21 +7,21 @@
     file.replace:
         - name: /etc/login.defs
         - pattern: ^PASS_MAX_DAYS.*
-        - repl: PASS_MAX_DAYS   90
+        - repl: PASS_MAX_DAYS   {{ salt['pillar.get']('cis:default:password:pass_max_days', 90) }}
         - append_if_not_found: True
 
 (5.4.1.2) Ensure minimum days between changes is 7 or more:
     file.replace:
         - name: /etc/login.defs
         - pattern: ^PASS_MIN_DAYS.*
-        - repl: PASS_MIN_DAYS   7
+        - repl: PASS_MIN_DAYS   {{ salt['pillar.get']('cis:default:password:pass_min_days', 7) }}
         - append_if_not_found: True
 
 (5.4.1.3) Ensure password expiration warning days is 7 or more:
     file.replace:
         - name: /etc/login.defs
         - pattern: ^PASS_WARN_AGE.*
-        - repl: PASS_WARN_AGE   7
+        - repl: PASS_WARN_AGE   {{ salt['pillar.get']('cis:default:password:pass_warn_age', 7) }}
         - append_if_not_found: True
 
 {% set inactive = salt['cmd.run_all'](cmd="useradd -D | grep INACTIVE | awk -F= {'print $2'}", python_shell=True) %}

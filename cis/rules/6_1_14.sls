@@ -11,7 +11,7 @@
 # section and check to see if system binaries have a different md5 checksum than what from
 # the package. This is an indication that the binary may have been replaced.
 
-{% set result = salt['cmd.run_all'](cmd="df --local -P | awk {'if (NR!=1) print $6'} | xargs -I '{}' find '{}' -xdev -type f -perm -2000", python_shell=True) %}
+{% set result = salt['cmd.run_all'](cmd="df --local -P | awk {'if (NR!=1) print $6'} | xargs -I '{}' find '{}' -xdev -type f -perm -2000 | grep -v 'bin/wall\|bin/write\|bin/ssh-agent\|bin/screen\|bin/locate\|openssh/ssh-keysign'", python_shell=True) %}
 
 {% if result['stdout'] %}
 (6.1.14) Audit SGID executables:

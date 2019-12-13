@@ -11,9 +11,8 @@
 {% set filesystems = ['cramfs', 'freevxfs', 'jffs2', 'hfs', 'hfsplus', 'squashfs', 'udf', 'vfat'] %}
 
 {% for fs in filesystems %}
-
+{% if not fs in salt['pillar.get']('cis:ignore:filesystems') %}
 {% set status = salt['cmd.run']('modprobe -n -v {}'.format(fs)) %}
-
 {% if status == 'install /bin/true' %}
 
 {{ rule }} {{ fs }} mounting is disabled:
@@ -38,5 +37,5 @@
         - onlyif: "lsmod | grep {{ fs }}"
 
 {% endif %}
-
+{% endif %}
 {% endfor %}
