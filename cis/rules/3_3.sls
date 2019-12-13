@@ -22,9 +22,9 @@
         - name: net.ipv6.conf.all.accept_redirects
         - value: 0
 
-{{ rule }} Ensure IPv6 redirects are not accepted (net.ipv4.conf.default.accept_redirects):
+{{ rule }} Ensure IPv6 redirects are not accepted (net.ipv6.conf.default.accept_redirects):
     sysctl.present:
-        - name: net.ipv4.conf.default.accept_redirects
+        - name: net.ipv6.conf.default.accept_redirects
         - value: 0
 
 
