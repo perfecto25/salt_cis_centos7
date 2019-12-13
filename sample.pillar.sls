@@ -9,7 +9,7 @@ cis:
         
         packages: ['ypbind', 'telnet', 'rsh', 'talk', 'avahi-daemon','cups', 'openldap-clients', 'xorg-x11-server-Xorg', 'samba']
         
-        protcols: ['dccp', 'sctp', 'rds', 'tipc']
+        protocols: ['dccp', 'sctp', 'rds', 'tipc']
         
         filesystems: ['cramfs', 'freevxfs', 'jffs2', 'hfs', 'hfsplus', 'squashfs', 'udf', 'vfat']
 

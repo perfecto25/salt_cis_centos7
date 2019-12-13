@@ -10,6 +10,7 @@
 {% set protocols = ['dccp', 'sctp', 'rds', 'tipc'] %}
 
 {% for pr in protocols %}
+{% if not pr in salt['pillar.get']('cis:ignore:protocols') %}
 
 {% set status = salt['cmd.run']('modprobe -n -v {}'.format(pr)) %}
 
@@ -38,4 +39,5 @@
 
 {% endif %}
 
+{% endif %}
 {% endfor %}
