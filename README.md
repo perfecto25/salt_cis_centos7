@@ -12,6 +12,13 @@ CIS formula cannot remediate automatically:
 - missing user home directories
 
 
+## Prerequisites
+you will need the following yum packages installed on your Centos 7 host
+
+1. policycoreutils
+1. policycoreutils-python
+1. augeas
+
 ## To check a host for CIS compliance
 
     salt [target] state.sls cis test=true

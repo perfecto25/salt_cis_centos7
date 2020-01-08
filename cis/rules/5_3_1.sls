@@ -16,20 +16,17 @@
 #  The settings shown above are one possible policy. Alter these values to conform to your
 #  own organization's password policies.
 
+{% set result = salt['cmd.script']('salt://{}/files/5_3_1'.format(slspath), cwd='/opt', args=opts['test']) %}
 
+{% if result['stdout'] %}
 (5.3.1) Ensure password creation requirements are configured in /etc/pam.d/password-auth:
-    file.replace:
-        - name: /etc/pam.d/password-auth
-        - pattern: ^password    requisite pam_pwquality.so try_first_pass retry=3
-        - repl: password requisite pam_pwquality.so try_first_pass retry=3
-        - append_if_not_found: True
+    test.fail_without_changes:
+        - name: "(5.3.1) Ensure password creation requirements are configured in /etc/pam.d/password-auth: \
 
-(5.3.1) Ensure password creation requirements are configured in /etc/pam.d/system-auth:
-    file.replace:
-        - name: /etc/pam.d/system-auth
-        - pattern: ^password    requisite pam_pwquality.so try_first_pass retry=3
-        - repl: password requisite pam_pwquality.so try_first_pass retry=3
-        - append_if_not_found: True
+                {{ result['stdout'] }} \
+
+        "
+{% endif %}
 
 (5.3.1) Ensure password creation requirements are configured for minlen:
     file.replace:

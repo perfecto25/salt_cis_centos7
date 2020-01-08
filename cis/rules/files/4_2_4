@@ -1,0 +1,32 @@
+#!/bin/bash
+
+# 4.2.4 Ensure permissions on all logfiles are configured
+
+# Description:
+# Log files stored in /var/log/ contain logged information from many services on the system,
+# or on log hosts others as well.
+
+
+# Rationale:
+# It is important to ensure that log files have the correct permissions to ensure that sensitive
+# data is archived and protected.
+
+test=$1
+
+find /var/log -type f -ls | awk '{print $11}' | xargs stat -c "%a %n" | while read -r perm logfile; 
+do
+    group=$(echo "${perm}" | head -c 2 | tail -c 1)
+    other=$(echo "${perm}" | head -c 3 | tail -c 1)
+
+
+    if [[ "${group}" == 7 ]] || [[ "${other}" -ne 0 ]]
+    then
+        echo -e "\n>>> ${logfile} permissions are too open: ${perm}"
+        
+        if [[ -z $test ]]
+        then
+            echo -e "\n>>> Updating permissions on ${logfile} with g-wx,o-rwx \n"
+            chmod g-wx,o-rwx "${logfile}"
+        fi
+    fi
+done

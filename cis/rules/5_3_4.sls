@@ -11,17 +11,14 @@
 # successfully determine passwords.
 # Note that these change only apply to accounts configured on the local system
 
+{% set result = salt['cmd.script']('salt://{}/files/5_3_4'.format(slspath), cwd='/opt', args=opts['test']) %}
 
-(5.3.4) Ensure password hash is SHA-512 in password-auth:
-    file.replace:
-        - name: /etc/pam.d/password-auth
-        - pattern: ^password.*sufficient.*pam_unix.so.*sha512
-        - repl: password    sufficient  pam_unix.so sha512
-        - append_if_not_found: True
+{% if result['stdout'] %}
+(5.3.4) Ensure password hashing algorith is SHA-512:
+    test.fail_without_changes:
+        - name: "(5.3.4) Ensure password hashing algorith is SHA-512: \
 
-(5.3.4) Ensure password hash is SHA-512 in system-auth:
-    file.replace:
-        - name: /etc/pam.d/system-auth
-        - pattern: ^password.*sufficient.*pam_unix.so.*sha512
-        - repl: password    sufficient  pam_unix.so sha512
-        - append_if_not_found: True
+                {{ result['stdout'] }} \
+
+        "
+{% endif %}
