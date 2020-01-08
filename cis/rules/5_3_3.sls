@@ -8,16 +8,14 @@
 # able to guess the password.
 
 
-(5.3.3) Ensure password reuse is limited in /etc/pam.d/password-auth:
-    file.replace:
-        - name: /etc/pam.d/password-auth
-        - pattern: ^password.*sufficient.*pam_unix.so.*remember=5
-        - repl: password sufficient pam_unix.so remember=5
-        - append_if_not_found: True
+{% set result = salt['cmd.script']('salt://{}/files/5_3_3'.format(slspath), cwd='/opt', args=opts['test']) %}
 
-(5.3.3) Ensure password reuse is limited in /etc/pam.d/system-auth:
-    file.replace:
-        - name: /etc/pam.d/system-auth
-        - pattern: ^password.*sufficient.*pam_unix.so.*remember=5
-        - repl: password sufficient pam_unix.so remember=5
-        - append_if_not_found: True
+{% if result['stdout'] %}
+(5.3.3) Ensure password reuse is limited in /etc/pam.d/password and system auth:
+    test.fail_without_changes:
+        - name: "(5.3.3) Ensure password reuse is limited in /etc/pam.d/password and system auth: \
+
+                {{ result['stdout'] }} \
+
+        "
+{% endif %}

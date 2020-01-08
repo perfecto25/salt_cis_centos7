@@ -1,0 +1,82 @@
+#!/bin/bash
+# 5.3.2 - Ensure lockout for failed password attempts is configured
+
+# Description:
+# Lock out users after n unsuccessful consecutive login attempts. The first sets of changes are
+# made to the PAM configuration files. The second set of changes are applied to the program
+# specific PAM configuration file. The second set of changes must be applied to each program
+# that will lock out users. Check the documentation for each secondary program for
+# instructions on how to configure them to work with PAM.
+# Set the lockout number to the policy in effect at your site.
+
+# Rationale:
+# Locking out user IDs after n unsuccessful consecutive login attempts mitigates brute force
+# password attacks against your system
+
+test=$1
+
+# check for Augtool
+type augtool &> /dev/null
+
+if [[ $? == 1 ]]
+then
+    echo -e "\n>>> Augtool binary not installed on this host, skipping this rule..."
+    exit 1
+fi
+
+files=(password-auth system-auth)
+
+readonly checks=(
+    # module, type, control, arg
+    'pam_faillock.so, auth, required, preauth'
+    'pam_faillock.so, auth, required, audit'
+    'pam_faillock.so, auth, required, silent'
+    'pam_faillock.so, auth, required, deny=5'
+    'pam_faillock.so, auth, required, unlock_time=900'
+    'pam_faillock.so, auth, [default=die], authfail'
+    'pam_faillock.so, auth, [default=die], audit'
+    'pam_faillock.so, auth, [default=die], deny=5'
+    'pam_faillock.so, auth, [default=die], unlock_time=900'
+    'pam_faillock.so, auth, sufficient, authsucc'
+    'pam_faillock.so, auth, sufficient, audit'
+    'pam_faillock.so, auth, sufficient, deny=5'
+    'pam_faillock.so, auth, sufficient, unlock_time=900'
+)
+
+function augeas_check() {
+    for file in "${files[@]}"; do
+
+        local Module Type Control Arg
+
+        for fields in "${checks[@]}"
+        do
+            # remove whitespace
+            fields="$(echo -e "${fields}" | tr -d '[:space:]')"  
+            IFS=$',' read -r Module Type Control Arg <<< "${fields}"
+            
+            # get current value
+            ret=$(augtool print "/files/etc/pam.d/$file/*[module='$Module'][type='$Type'][control='$Control']/argument[ . = '$Arg']")
+            if [[ -z "${ret}" ]]
+            then
+                echo -e "\n>>> '$Type $Control $Module $Arg' is not set in /etc/pam.d/$file"
+                
+                if [[ -z $test ]]
+                then
+                    # Remediate
+                    echo -e "\n>>> Setting '$Type $Control $Module $Arg' in /etc/pam.d/$file"
+                    
+                    # check if regex is needed for arguments with 'key=val'
+                    if [[ -z "${Arg##*'='*}" ]]
+                    then
+                        key=${Arg%%'='*}
+                        augtool set "/files/etc/pam.d/$file/*[module='$Module'][type='$Type'][control='$Control']/argument[ . =~ regexp(\"$key=.*\")] $Arg"
+                    else
+                        augtool set "/files/etc/pam.d/$file/*[module='$Module'][type='$Type'][control='$Control']/argument[ . = '$Arg'] $Arg"
+                    fi
+                fi
+            fi
+        done
+    done
+}
+
+augeas_check

@@ -1,3 +1,5 @@
+#!/bin/bash
+
 # 5.6 Ensure access to the su command is restricted
 
 # Description:
@@ -12,14 +14,26 @@
 # also provides a better logging and audit mechanism, as it can log each command executed
 # via sudo , whereas su can only record that a user executed the su program.
 
-{% set result = salt['cmd.script']('salt://{}/files/5_6'.format(slspath), cwd='/opt', args=opts['test']) %}
+test=$1
 
-{% if result['stdout'] %}
-(5.6) Ensure access to the su command is restricted:
-    test.fail_without_changes:
-        - name: "(5.6) Ensure access to the su command is restricted: \
+# check for Augtool
+type augtool &> /dev/null
 
-                {{ result['stdout'] }} \
+if [[ $? == 1 ]]
+then
+    echo -e "\n>>> Augtool binary not installed on this host, skipping this rule..."
+    exit 1
+fi
 
-        "
-{% endif %}
+ret=$(augtool print "/files/etc/pam.d/su/*[module='pam_wheel.so'][type='auth'][control='required']/argument[ . = 'use_uid']")
+if [[ -z "${ret}" ]]
+then
+    echo -e "\n>>> 'auth required pam_wheel.so use_uid' in not set in /etc/pam.d/su"
+
+    # Remediate
+    if [[ -z $test ]]
+    then
+        echo -e "\n>>> Setting 'auth required pam_wheel.so use_uid' in /etc/pam.d/su"
+        augtool set "/files/etc/pam.d/su/*[module='pam_wheel.so'][type='auth'][control='required']/argument[ . = 'use_uid'] use_uid"
+    fi
+fi

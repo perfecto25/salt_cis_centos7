@@ -1,0 +1,39 @@
+#!/bin/bash
+
+# 5.3.3 - Ensure password reuse is limited
+
+# The /etc/security/opasswd file stores the users' old passwords and can be checked to
+# ensure that users are not recycling recent passwords.
+
+# Rationale:
+# Forcing users not to reuse their past 5 passwords make it less likely that an attacker will be
+# able to guess the password.
+
+test=$1
+
+# check for Augtool
+type augtool &> /dev/null
+
+if [[ $? == 1 ]]
+then
+    echo -e "\n>>> Augtool binary not installed on this host, skipping this rule..."
+    exit 1
+fi
+
+files=(password-auth system-auth)
+
+for file in "${files[@]}"; do
+
+    ret=$(augtool print "/files/etc/pam.d/$file/*[module='pam_unix.so'][type='password'][control='sufficient']/argument[ . = 'remember=5']")
+    if [[ -z "${ret}" ]]
+    then
+        echo -e "\n>>> 'password sufficient pam_unix.so remember=5' in not set in /etc/pam.d/$file"
+
+        # Remediate
+        if [[ -z $test ]]
+        then
+            echo -e "\n>>> Setting 'password sufficient pam_unix.so remember=5' in /etc/pam.d/$file"
+            augtool set "/files/etc/pam.d/$file/*[module='pam_unix.so'][type='password'][control='sufficient']/argument[ . =~ regexp(\"remember=.*\")] remember=5"
+        fi
+    fi
+done

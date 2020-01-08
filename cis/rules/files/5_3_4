@@ -1,0 +1,44 @@
+#!/bin/bash
+
+# 5.3.4 - Ensure password hashing algorith is SHA-512
+
+# Description:
+# The commands below change password encryption from md5 to sha512 (a much stronger
+# hashing algorithm). All existing accounts will need to perform a password change to
+# upgrade the stored hashes to the new algorithm.
+
+# Rationale:
+# The SHA-512 algorithm provides much stronger hashing than MD5, thus providing
+# additional protection to the system by increasing the level of effort for an attacker to
+# successfully determine passwords.
+# Note that these change only apply to accounts configured on the local system
+
+test=$1
+
+# check for Augtool
+type augtool &> /dev/null
+
+if [[ $? == 1 ]]
+then
+    echo -e "\n>>> Augtool binary not installed on this host, skipping this rule..."
+    exit 1
+fi
+
+
+files=(password-auth system-auth)
+
+for file in "${files[@]}"; do
+
+    ret=$(augtool print "/files/etc/pam.d/$file/*[module='pam_unix.so'][type='password'][control='sufficient']/argument[ . = 'sha512']")
+    if [[ -z "${ret}" ]]
+    then
+        echo -e "\n>>> 'password sufficient pam_unix.so sha512' in not set in /etc/pam.d/$file"
+
+        # Remediate
+        if [[ -z $test ]]
+        then
+            echo -e "\n>>> Setting 'password sufficient pam_unix.so sha512' in /etc/pam.d/$file"
+            augtool set "/files/etc/pam.d/$file/*[module='pam_unix.so'][type='password'][control='sufficient']/argument[ . = 'sha512'] sha512"
+        fi
+    fi
+done
